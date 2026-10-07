@@ -4,7 +4,7 @@ Standalone ASP.NET Core Web API backend for the Dental Management App.
 
 ---
 
-## 🛠️ Tech Stack & Architecture
+## Tech Stack & Architecture
 
 - **Runtime & Framework**: .NET 10 (`net10.0`), ASP.NET Core Web API
 - **Database**: PostgreSQL (Npgsql Entity Framework Core Provider) / Supabase compatible
@@ -14,7 +14,7 @@ Standalone ASP.NET Core Web API backend for the Dental Management App.
 
 ---
 
-## 📁 Repository Structure
+##  Repository Structure
 
 ```
 Dental management app/
@@ -44,7 +44,7 @@ Dental management app/
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### 1. Build Solution
 ```bash
