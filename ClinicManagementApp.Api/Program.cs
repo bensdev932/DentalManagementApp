@@ -25,6 +25,11 @@ if (!string.IsNullOrEmpty(port))
 
 // 1. Database Configuration (PostgreSQL via Npgsql)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (builder.Environment.IsProduction() && (string.IsNullOrWhiteSpace(connectionString) || connectionString.Contains("YOUR_SUPABASE_")))
+{
+    throw new InvalidOperationException("Production requires ConnectionStrings:DefaultConnection configured via environment variable (ConnectionStrings__DefaultConnection).");
+}
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString, npgsqlOptions =>
     {
@@ -51,8 +56,15 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 
 // 3. JWT Bearer Authentication Configuration
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = Encoding.UTF8.GetBytes(jwtSettings["Key"]
-    ?? throw new InvalidOperationException("JwtSettings:Key is missing in configuration."));
+var rawKey = jwtSettings["Key"]
+    ?? throw new InvalidOperationException("JwtSettings:Key is missing in configuration.");
+
+if (builder.Environment.IsProduction() && rawKey.Contains("YOUR_PRODUCTION_"))
+{
+    throw new InvalidOperationException("Production requires JwtSettings:Key configured via environment variable (JwtSettings__Key).");
+}
+
+var secretKey = Encoding.UTF8.GetBytes(rawKey);
 
 builder.Services.AddAuthentication(options =>
 {

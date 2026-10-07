@@ -11,11 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Render API Gateway & Supabase Health
+        env:
+          RENDER_HEALTH_URL: ${{ secrets.RENDER_HEALTH_URL }}
         run: |
+          TARGET_URL="${RENDER_HEALTH_URL:-https://clinic-management-api-wcxe.onrender.com/api/v1/diagnostics/health}"
           echo "Pinging Render API Gateway & Supabase Health Check..."
-          RESPONSE=$(curl -s https://clinic-management-api-wcxe.onrender.com/api/v1/diagnostics/health)
+          RESPONSE=$(curl -s "$TARGET_URL")
           echo "Health Response: $RESPONSE"
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://clinic-management-api-wcxe.onrender.com/api/v1/diagnostics/health)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$TARGET_URL")
           echo "Render HTTP Status: $STATUS"
           if [ "$STATUS" -ne 200 ]; then
             echo "::warning::Health check returned status $STATUS"
