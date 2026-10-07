@@ -1,6 +1,6 @@
 # Dental Management App - Backend API
 
-Standalone ASP.NET Core Web API backend for the Dental Management App, duplicated from Clinic Management App backend.
+Standalone ASP.NET Core Web API backend for the Dental Management App.
 
 ---
 
