@@ -68,6 +68,5 @@ appsettings.Local.json
 .agents/teamwork/
 
 ## Agent skills & lockfiles
-.agents/skills/
 skills-lock.json
 

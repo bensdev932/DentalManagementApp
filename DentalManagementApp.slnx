@@ -2,6 +2,18 @@
   <Folder Name="/.agents/">
     <File Path=".agents/rules/render-supabase-sync.md" />
   </Folder>
+  <Folder Name="/.agents/skills/solid/">
+    <File Path=".agents/skills/solid/SKILL.md" />
+    <File Path=".agents/skills/solid/references/architecture.md" />
+    <File Path=".agents/skills/solid/references/clean-code.md" />
+    <File Path=".agents/skills/solid/references/code-smells.md" />
+    <File Path=".agents/skills/solid/references/complexity.md" />
+    <File Path=".agents/skills/solid/references/design-patterns.md" />
+    <File Path=".agents/skills/solid/references/object-design.md" />
+    <File Path=".agents/skills/solid/references/solid-principles.md" />
+    <File Path=".agents/skills/solid/references/tdd.md" />
+    <File Path=".agents/skills/solid/references/testing.md" />
+  </Folder>
   <Folder Name="/.github/workflows/">
     <File Path=".github/workflows/db-backup.yml" />
     <File Path=".github/workflows/supabase-keep-alive.yml" />
