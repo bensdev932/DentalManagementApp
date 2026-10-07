@@ -22,6 +22,7 @@
     <File Path=".gitignore" />
     <File Path="dotnet-tools.json" />
     <File Path="README.md" />
+    <File Path="SECURITY.md" />
   </Folder>
   <Project Path="ClinicManagementApp.Api.Tests/ClinicManagementApp.Api.Tests.csproj" />
   <Project Path="ClinicManagementApp.Api/ClinicManagementApp.Api.csproj" />
