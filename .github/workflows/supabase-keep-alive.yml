@@ -1,0 +1,33 @@
+name: Supabase & API Keep-Alive
+
+on:
+  schedule:
+    # Runs every Monday and Thursday at 04:00 UTC (preventing 7-day idle pause)
+    - cron: '0 4 * * 1,4'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions dashboard
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render API Gateway & Supabase Health
+        run: |
+          echo "Pinging Render API Gateway & Supabase Health Check..."
+          RESPONSE=$(curl -s https://clinic-management-api-wcxe.onrender.com/api/v1/diagnostics/health)
+          echo "Health Response: $RESPONSE"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://clinic-management-api-wcxe.onrender.com/api/v1/diagnostics/health)
+          echo "Render HTTP Status: $STATUS"
+          if [ "$STATUS" -ne 200 ]; then
+            echo "::warning::Health check returned status $STATUS"
+          fi
+
+      - name: Ping Supabase Database REST Endpoint (if configured)
+        if: env.SUPABASE_URL != ''
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          echo "Pinging Supabase REST..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${SUPABASE_URL}/rest/v1/" -H "apikey: ${SUPABASE_ANON_KEY}")
+          echo "Supabase HTTP Status: $STATUS"
+

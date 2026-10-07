@@ -1,0 +1,402 @@
+@ClinicManagementApp.Api_HostAddress = https://localhost:7083
+@AuthToken = 
+
+### ==============================================================================
+### 1. SYSTEM INITIALIZATION & OWNER GENESIS (Zero-Trust Setup)
+### ==============================================================================
+
+### Check if initial Owner setup is required
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/auth/setup-status
+Accept: application/json
+
+### One-Time Owner Account Genesis (Locks itself after creating first account)
+POST {{ClinicManagementApp.Api_HostAddress}}/api/v1/auth/initial-setup
+Content-Type: application/json
+
+{
+  "email": "owner@clinic.com",
+  "password": "Password123!",
+  "fullName": "Dr. Owner Dentist",
+  "phone": "09171234567"
+}
+
+### Authenticate / Login (Returns JWT Access Token + Refresh Token)
+# @name login
+POST {{ClinicManagementApp.Api_HostAddress}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "owner@clinic.com",
+  "password": "Password123!"
+}
+
+### Refresh Expired Access Token
+POST {{ClinicManagementApp.Api_HostAddress}}/api/v1/auth/refresh-token
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "refreshToken": "{{login.response.body.data.refreshToken}}"
+}
+
+
+### ==============================================================================
+### 2. OWNER-CONTROLLED STAFF MANAGEMENT (/api/v1/users)
+### ==============================================================================
+
+### Get Current User Profile
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/users/me
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+### List All Staff Accounts (Owner only)
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/users
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+### Provision a New Staff Account (Owner only)
+# @name createStaff
+POST {{ClinicManagementApp.Api_HostAddress}}/api/v1/users
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "email": "staff.maria@clinic.com",
+  "password": "StaffPassword123!",
+  "fullName": "Maria Santos",
+  "role": "Owner",
+  "phone": "09181234567"
+}
+
+### KILL SWITCH: Deactivate Account and Immediately Terminate All Sessions
+PUT {{ClinicManagementApp.Api_HostAddress}}/api/v1/users/{{createStaff.response.body.data.id}}/status
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "isActive": false
+}
+
+### Reactivate Account
+PUT {{ClinicManagementApp.Api_HostAddress}}/api/v1/users/{{createStaff.response.body.data.id}}/status
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "isActive": true
+}
+
+### Owner Administrative Password Override (Force-change without old password)
+PUT {{ClinicManagementApp.Api_HostAddress}}/api/v1/users/{{createStaff.response.body.data.id}}/admin-reset-password
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "newPassword": "NewSecurePassword456!"
+}
+
+### Kick Out All Devices / Revoke All Sessions
+POST {{ClinicManagementApp.Api_HostAddress}}/api/v1/users/{{createStaff.response.body.data.id}}/revoke-sessions
+Authorization: Bearer {{login.response.body.data.token}}
+
+
+### ==============================================================================
+### 3. PATIENT MANAGEMENT (/api/v1/patients)
+### ==============================================================================
+
+### Register a New Patient
+# @name createPatient
+POST {{ClinicManagementApp.Api_HostAddress}}/api/v1/patients
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "firstName": "Juan",
+  "lastName": "Dela Cruz",
+  "age": 28,
+  "gender": "Male",
+  "phone": "09179876543",
+  "role": "Oral Prophylaxis (Cleaning)",
+  "consultationFee": 800.00,
+  "consultationNotes": "Patient has mild gingivitis on lower incisors.",
+  "status": "Active"
+}
+
+### Get Paginated List of Patients with Search & Filter
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/patients?search=Juan&page=1&pageSize=20
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+### Get Patient Details with Clinical Counts
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/patients/{{createPatient.response.body.data.id}}
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+### Update Patient Record
+PUT {{ClinicManagementApp.Api_HostAddress}}/api/v1/patients/{{createPatient.response.body.data.id}}
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "firstName": "Juan",
+  "lastName": "Dela Cruz",
+  "age": 29,
+  "gender": "Male",
+  "phone": "09179876543",
+  "role": "Oral Prophylaxis (Cleaning)",
+  "consultationFee": 850.00,
+  "consultationNotes": "Routine cleaning completed. Advised brushing 3x daily.",
+  "status": "Active"
+}
+
+### Soft-Delete / Archive Patient
+DELETE {{ClinicManagementApp.Api_HostAddress}}/api/v1/patients/{{createPatient.response.body.data.id}}
+Authorization: Bearer {{login.response.body.data.token}}
+
+
+### ==============================================================================
+### 4. APPOINTMENT SCHEDULING & REMINDERS (/api/v1/appointments)
+### ==============================================================================
+
+### Schedule an Appointment (Auto-links patient)
+# @name createAppointment
+POST {{ClinicManagementApp.Api_HostAddress}}/api/v1/appointments
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "patientId": null,
+  "patientName": "Anna Reyes",
+  "patientPhone": "09195551234",
+  "procedure": "Dental Fillings (Restoration)",
+  "appointmentDateTime": "2026-09-20T10:00:00Z",
+  "durationMinutes": 45,
+  "notes": "Upper left premolar filling replacement",
+  "reminderMinutesBefore": 60
+}
+
+### Get Upcoming Appointments (For Dashboard)
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/appointments/upcoming?limit=10
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+### Filter Appointments by Date Range
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/appointments?startDate=2026-09-01&endDate=2026-09-30
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+### Reschedule Appointment
+PUT {{ClinicManagementApp.Api_HostAddress}}/api/v1/appointments/{{createAppointment.response.body.data.id}}/reschedule
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "newDateTime": "2026-09-21T14:30:00Z",
+  "durationMinutes": 45
+}
+
+### Send SMS / WhatsApp Reminder
+POST {{ClinicManagementApp.Api_HostAddress}}/api/v1/appointments/send-sms-reminder
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "appointmentId": {{createAppointment.response.body.data.id}}
+}
+
+### Complete Appointment (Automatically posts treatment to patient ledger)
+POST {{ClinicManagementApp.Api_HostAddress}}/api/v1/appointments/{{createAppointment.response.body.data.id}}/complete
+Authorization: Bearer {{login.response.body.data.token}}
+
+
+### ==============================================================================
+### 5. TREATMENTS & CLINICAL PROCEDURES (/api/v1/treatments, /api/v1/catalog)
+### ==============================================================================
+
+### Get Procedure Pricing Catalog
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/catalog/procedures
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+### Add New Custom Procedure to Catalog (Owner only)
+POST {{ClinicManagementApp.Api_HostAddress}}/api/v1/catalog/procedures
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "name": "Porcelain Veneer",
+  "category": "Cosmetic",
+  "baselinePrice": 12000.00,
+  "description": "Custom laboratory-fabricated laminate veneer"
+}
+
+### Record a Treatment Visit
+# @name createTreatment
+POST {{ClinicManagementApp.Api_HostAddress}}/api/v1/treatments
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "patientId": 1,
+  "treatmentType": "Tooth Extraction",
+  "consultationFee": 1200.00,
+  "dateCreated": "2026-09-18T10:00:00Z",
+  "isInstallment": false
+}
+
+### Get Patient Treatments Ledger
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/treatments/patient/1
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+
+### ==============================================================================
+### 6. ORTHODONTIC CONTRACTS & INSTALLMENT PLANS (/api/v1/orthodontics)
+### ==============================================================================
+
+### Create New Braces Contract for Patient
+# @name createContract
+POST {{ClinicManagementApp.Api_HostAddress}}/api/v1/orthodontics/contract
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "patientId": 1,
+  "totalContractPrice": 50000.00,
+  "downPayment": 10000.00,
+  "termsMonths": 24,
+  "startDate": "2026-09-18T10:00:00Z"
+}
+
+### Record Monthly Adjustment / Installment Payment
+POST {{ClinicManagementApp.Api_HostAddress}}/api/v1/orthodontics/payment
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "patientId": 1,
+  "amount": 1500.00,
+  "paymentDate": "2026-09-18T11:00:00Z",
+  "notes": "Month 1 Wire Change & Bracket Rebond"
+}
+
+### Get Live Orthodontic Summary (Remaining Balance, Amortization, Progress)
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/orthodontics/patient/1/summary
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+
+### ==============================================================================
+### 7. EXPENSE TRACKING (/api/v1/expenses)
+### ==============================================================================
+
+### Log a Clinic Expense
+# @name createExpense
+POST {{ClinicManagementApp.Api_HostAddress}}/api/v1/expenses
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "title": "Dental Supply Restock (Composite & Gloves)",
+  "amount": 4500.00,
+  "category": "Supplies",
+  "date": "2026-09-18T09:00:00Z",
+  "isRecurringFixedCost": false
+}
+
+### Log a Recurring Fixed Clinic Overhead (e.g. Clinic Rent)
+POST {{ClinicManagementApp.Api_HostAddress}}/api/v1/expenses
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "title": "Clinic Space Lease",
+  "amount": 20000.00,
+  "category": "Rent",
+  "date": "2026-09-01T00:00:00Z",
+  "isRecurringFixedCost": true
+}
+
+### Get Filtered Expenses
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/expenses?category=Supplies
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+### Get Expense Category Breakdown
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/expenses/summary
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+
+### ==============================================================================
+### 8. FINANCIAL ANALYTICS & BIR TAX ENGINE (/api/v1/reports, /api/v1/taxes)
+### ==============================================================================
+
+### Aggregated Dashboard Figures (Gross, expenses, patient count, 6-month trends)
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/reports/dashboard
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+### Period Financial Breakdown (ThisMonth, ThisQuarter, ThisYear, AllTime)
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/reports/period?period=ThisMonth
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+### Philippine BIR Quarterly Tax Computation (8% Flat Rate under TRAIN Law)
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/taxes/quarterly?year=2026&quarter=3&regime=EightPercentFlat&deductionMethod=Itemized&form2307Credits=0
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+### Philippine BIR Quarterly Tax Computation (Graduated Rates + 3% Percentage Tax)
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/taxes/quarterly?year=2026&quarter=3&regime=GraduatedRates&deductionMethod=OSD&form2307Credits=0
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+### Upcoming BIR Tax Deadlines & Severity Alerts
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/taxes/deadlines
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+### Senior Citizen / PWD 20% Statutory Discount Calculator
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/taxes/senior-pwd-discount?grossFee=1500&isVatRegistered=false
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+
+### ==============================================================================
+### 9. OFFLINE-FIRST MOBILE SYNC & IDEMPOTENT OUTBOX ENGINE (/api/v1/sync)
+### ==============================================================================
+
+### Push a Single Mobile Mutation (Idempotent via Guid Id)
+POST {{ClinicManagementApp.Api_HostAddress}}/api/v1/sync/push
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "id": "e8a9df67-27b3-4f9a-8c9e-5b12a8ef4321",
+  "entityType": "Patient",
+  "entityId": "0",
+  "operation": 1,
+  "payloadJson": "{\"firstName\":\"Pedro\",\"lastName\":\"Penduko\",\"age\":35,\"gender\":\"Male\",\"phone\":\"09187654321\",\"role\":\"Oral Prophylaxis\",\"consultationFee\":600,\"status\":\"Active\"}",
+  "createdAtUtc": "2026-09-18T10:00:00Z"
+}
+
+### Re-Push Same Record (Demonstrating Idempotency: Will Not Duplicate)
+POST {{ClinicManagementApp.Api_HostAddress}}/api/v1/sync/push
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "id": "e8a9df67-27b3-4f9a-8c9e-5b12a8ef4321",
+  "entityType": "Patient",
+  "entityId": "0",
+  "operation": 1,
+  "payloadJson": "{\"firstName\":\"Pedro\",\"lastName\":\"Penduko\",\"age\":35,\"gender\":\"Male\",\"phone\":\"09187654321\",\"role\":\"Oral Prophylaxis\",\"consultationFee\":600,\"status\":\"Active\"}",
+  "createdAtUtc": "2026-09-18T10:00:00Z"
+}
+
+### Pull Server Changes Since Timestamp
+GET {{ClinicManagementApp.Api_HostAddress}}/api/v1/sync/pull?since=2026-09-18T00:00:00Z
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+

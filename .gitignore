@@ -1,0 +1,69 @@
+## Visual Studio / .NET ignores
+.vs/
+.vscode/
+.idea/
+bin/
+obj/
+out/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+TestResults/
+
+## User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.DotSettings.user
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+bld/
+[Bb]uild/
+
+## .NET MAUI / Mobile artifacts
+*.apk
+*.aab
+*.msix
+*.appx
+*.appxbundle
+*.msixbundle
+*.ipa
+*.dSYM/
+*.keystore
+!*.example.keystore
+!build_signing.keystore
+
+## Logs and databases
+*.log
+*.sqlite
+*.sqlite3
+*.db
+!seed.db
+
+## OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+## Temporary scratch folders
+scratch/
+tmp/
+temp/
+
+## Local configuration
+appsettings.Local.json
+*.Local.json
+
+## Agent teamwork scratch
+.agents/teamwork/
+

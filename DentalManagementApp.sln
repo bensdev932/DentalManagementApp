@@ -1,0 +1,90 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClinicManagementApp.Api", "ClinicManagementApp.Api\ClinicManagementApp.Api.csproj", "{D9504E97-BEC0-4F42-B909-CD23F287A6AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClinicManagementApp.Api.Tests", "ClinicManagementApp.Api.Tests\ClinicManagementApp.Api.Tests.csproj", "{DC169047-4EE3-47D0-9FB4-EF5E2CEB3A4E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E9BC2F1A-91E3-4B39-86B5-D189871788E1}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		dotnet-tools.json = dotnet-tools.json
+		README.md = README.md
+		skills-lock.json = skills-lock.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{9D458925-83C3-435E-A269-B6E0973BE777}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{A6D3A072-46A2-4DFA-A3B9-86641A5C16AE}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\db-backup.yml = .github\workflows\db-backup.yml
+		.github\workflows\supabase-keep-alive.yml = .github\workflows\supabase-keep-alive.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".agents", ".agents", "{5B2F996B-70C6-4C5C-9A52-0B2F2A8CD823}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rules", "rules", "{4DF43037-E0A7-48DF-955A-B8B790B5512B}"
+	ProjectSection(SolutionItems) = preProject
+		.agents\rules\render-supabase-sync.md = .agents\rules\render-supabase-sync.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "skills", "skills", "{8C090D90-3D04-4366-AE81-56D3FA9C0EF7}"
+	ProjectSection(SolutionItems) = preProject
+		.agents\skills\solid\SKILL.md = .agents\skills\solid\SKILL.md
+		.agents\skills\solid\references\architecture.md = .agents\skills\solid\references\architecture.md
+		.agents\skills\solid\references\clean-code.md = .agents\skills\solid\references\clean-code.md
+		.agents\skills\solid\references\code-smells.md = .agents\skills\solid\references\code-smells.md
+		.agents\skills\solid\references\complexity.md = .agents\skills\solid\references\complexity.md
+		.agents\skills\solid\references\design-patterns.md = .agents\skills\solid\references\design-patterns.md
+		.agents\skills\solid\references\object-design.md = .agents\skills\solid\references\object-design.md
+		.agents\skills\solid\references\solid-principles.md = .agents\skills\solid\references\solid-principles.md
+		.agents\skills\solid\references\tdd.md = .agents\skills\solid\references\tdd.md
+		.agents\skills\solid\references\testing.md = .agents\skills\solid\references\testing.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D9504E97-BEC0-4F42-B909-CD23F287A6AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9504E97-BEC0-4F42-B909-CD23F287A6AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9504E97-BEC0-4F42-B909-CD23F287A6AB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D9504E97-BEC0-4F42-B909-CD23F287A6AB}.Debug|x64.Build.0 = Debug|Any CPU
+		{D9504E97-BEC0-4F42-B909-CD23F287A6AB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D9504E97-BEC0-4F42-B909-CD23F287A6AB}.Debug|x86.Build.0 = Debug|Any CPU
+		{D9504E97-BEC0-4F42-B909-CD23F287A6AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9504E97-BEC0-4F42-B909-CD23F287A6AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9504E97-BEC0-4F42-B909-CD23F287A6AB}.Release|x64.ActiveCfg = Release|Any CPU
+		{D9504E97-BEC0-4F42-B909-CD23F287A6AB}.Release|x64.Build.0 = Release|Any CPU
+		{D9504E97-BEC0-4F42-B909-CD23F287A6AB}.Release|x86.ActiveCfg = Release|Any CPU
+		{D9504E97-BEC0-4F42-B909-CD23F287A6AB}.Release|x86.Build.0 = Release|Any CPU
+		{DC169047-4EE3-47D0-9FB4-EF5E2CEB3A4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC169047-4EE3-47D0-9FB4-EF5E2CEB3A4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC169047-4EE3-47D0-9FB4-EF5E2CEB3A4E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DC169047-4EE3-47D0-9FB4-EF5E2CEB3A4E}.Debug|x64.Build.0 = Debug|Any CPU
+		{DC169047-4EE3-47D0-9FB4-EF5E2CEB3A4E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DC169047-4EE3-47D0-9FB4-EF5E2CEB3A4E}.Debug|x86.Build.0 = Debug|Any CPU
+		{DC169047-4EE3-47D0-9FB4-EF5E2CEB3A4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC169047-4EE3-47D0-9FB4-EF5E2CEB3A4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC169047-4EE3-47D0-9FB4-EF5E2CEB3A4E}.Release|x64.ActiveCfg = Release|Any CPU
+		{DC169047-4EE3-47D0-9FB4-EF5E2CEB3A4E}.Release|x64.Build.0 = Release|Any CPU
+		{DC169047-4EE3-47D0-9FB4-EF5E2CEB3A4E}.Release|x86.ActiveCfg = Release|Any CPU
+		{DC169047-4EE3-47D0-9FB4-EF5E2CEB3A4E}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A6D3A072-46A2-4DFA-A3B9-86641A5C16AE} = {9D458925-83C3-435E-A269-B6E0973BE777}
+		{4DF43037-E0A7-48DF-955A-B8B790B5512B} = {5B2F996B-70C6-4C5C-9A52-0B2F2A8CD823}
+		{8C090D90-3D04-4366-AE81-56D3FA9C0EF7} = {5B2F996B-70C6-4C5C-9A52-0B2F2A8CD823}
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

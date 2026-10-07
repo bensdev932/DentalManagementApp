@@ -1,0 +1,111 @@
+name: Automated Database Backup
+
+on:
+  schedule:
+    # Runs automatically every night at 12:00 AM UTC (08:00 AM PHT)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allows 1-click manual trigger before deploying app updates or schema migrations
+
+jobs:
+  backup:
+    name: Supabase PostgreSQL Backup
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install PostgreSQL Client Tools
+        run: |
+          sudo apt-get update
+          # Add PostgreSQL 17 repository and install matching client
+          sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-17
+
+      - name: Verify pg_dump Version
+        run: |
+          /usr/lib/postgresql/17/bin/pg_dump --version
+
+      - name: Run pg_dump using v17 binary
+        env:
+          PGHOST: ${{ secrets.SUPABASE_PGHOST }}
+          PGPORT: ${{ secrets.SUPABASE_PGPORT }}
+          PGDATABASE: ${{ secrets.SUPABASE_PGDATABASE }}
+          PGUSER: ${{ secrets.SUPABASE_PGUSER }}
+          PGPASSWORD: ${{ secrets.SUPABASE_PGPASSWORD }}
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          mkdir -p backup_export
+          TIMESTAMP=$(date -u +%Y%m%dT%H%M%SZ)
+          BACKUP_FILE="backup_export/clinic_db_${TIMESTAMP}.sql"
+
+          # Clean empty PG* environment variables to prevent libpq interference with connection strings
+          [ -z "${PGHOST:-}" ] && unset PGHOST || true
+          [ -z "${PGPORT:-}" ] && unset PGPORT || true
+          [ -z "${PGDATABASE:-}" ] && unset PGDATABASE || true
+          [ -z "${PGUSER:-}" ] && unset PGUSER || true
+          [ -z "${PGPASSWORD:-}" ] && unset PGPASSWORD || true
+          [ -z "${SUPABASE_DB_URL:-}" ] && unset SUPABASE_DB_URL || true
+
+          if [ -n "${PGHOST:-}" ] && [ -n "${PGUSER:-}" ]; then
+            echo "Executing explicit pg_dump v17 with host parameters..."
+            /usr/lib/postgresql/17/bin/pg_dump \
+              --host="$PGHOST" \
+              --port="${PGPORT:-5432}" \
+              --username="$PGUSER" \
+              --dbname="${PGDATABASE:-postgres}" \
+              --schema=public \
+              --clean \
+              --if-exists \
+              --no-owner \
+              --no-privileges \
+              --file="$BACKUP_FILE"
+          elif [ -n "${SUPABASE_DB_URL:-}" ]; then
+            echo "Executing explicit pg_dump v17 with SUPABASE_DB_URL..."
+            /usr/lib/postgresql/17/bin/pg_dump \
+              --dbname="$SUPABASE_DB_URL" \
+              --schema=public \
+              --clean \
+              --if-exists \
+              --no-owner \
+              --no-privileges \
+              --file="$BACKUP_FILE"
+          else
+            echo "::error::Neither SUPABASE_PGHOST nor SUPABASE_DB_URL secret is configured."
+            exit 1
+          fi
+
+          if [ ! -s "$BACKUP_FILE" ]; then
+            echo "::error::pg_dump failed to produce a valid database snapshot."
+            exit 1
+          fi
+
+          echo "Compressing SQL dump with gzip..."
+          gzip -9 "$BACKUP_FILE"
+
+          ls -lh backup_export/
+
+      - name: Encrypt Backup (Optional AES-256)
+        env:
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+        run: |
+          if [ -n "${BACKUP_ENCRYPTION_KEY:-}" ]; then
+            echo "Encrypting backup archive with AES-256..."
+            for file in backup_export/*; do
+              [ -f "$file" ] || continue
+              gpg --symmetric --cipher-algo AES256 --batch --yes --pinentry-mode loopback --passphrase "$BACKUP_ENCRYPTION_KEY" "$file"
+              rm "$file"
+            done
+            ls -lh backup_export/
+          else
+            echo "BACKUP_ENCRYPTION_KEY not configured. Skipping encryption."
+          fi
+
+      - name: Upload Secure Backup Artifact (30-Day Retention)
+        uses: actions/upload-artifact@v4
+        with:
+          name: supabase-clinic-database-backup
+          path: backup_export/
+          retention-days: 30
+          if-no-files-found: error
+
