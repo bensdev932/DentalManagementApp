@@ -15,7 +15,7 @@ Content-Type: application/json
 
 {
   "email": "owner@clinic.com",
-  "password": "Password123!",
+  "password": "YOUR_LOCAL_TEST_PASSWORD_HERE",
   "fullName": "Dr. Owner Dentist",
   "phone": "09171234567"
 }
@@ -26,8 +26,8 @@ POST {{ClinicManagementApp.Api_HostAddress}}/api/v1/auth/login
 Content-Type: application/json
 
 {
-  "email": "owner@clinic.com",
-  "password": "Password123!"
+  "email": "owner@example.com",
+  "password": "YOUR_LOCAL_TEST_PASSWORD_HERE"
 }
 
 ### Refresh Expired Access Token
@@ -92,7 +92,7 @@ Authorization: Bearer {{login.response.body.data.token}}
 Content-Type: application/json
 
 {
-  "newPassword": "NewSecurePassword456!"
+  "newPassword": "YOUR_LOCAL_TEST_PASSWORD_HERE"
 }
 
 ### Kick Out All Devices / Revoke All Sessions
